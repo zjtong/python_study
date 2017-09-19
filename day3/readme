@@ -1,0 +1,23 @@
+程序定义三个函数：查询 fetch、增加 add、删除 remove
+
+1、查询 fetch
+    用户输入要查询的数据，格式化数据 >>> backend = "backend %s"%data
+    逐行读取文件，与backend匹配，匹配成功 >>> find_flag = True
+    继续匹配，如果接下来是以"backend" 开头 >>> find_flag = False
+    根据find_flag 标志来判断要不要把内容添加到server_list中
+
+
+2、添加 add
+    1：由fetch（）读取到server，添加到列表中
+    2：列表为空？
+    →是：要添加内容的backend在文件中不存在（server也就不存在了），所在要把backend和server一起添加到文件中，直接在文件最后追加
+    →否：要添加内容的backend在文件中存在，server信息存在列表中
+    3：backend已存在→要添加内容的input_server（用户输入的）与读取到的read_server（从文件读取的）的比较
+        ① input_server==read_server，即要添加的内容在文件中已经存在了 →add_flag=False，不添加
+        ②input_server！=read_server，要把input_server添加到backend后面 → add_flag=True，要添加
+
+3、删除 remove
+    流程与添加一样，用户输入的backend在文件中存不存在
+        →①不存在，删除不了，退出
+        →②存在→Ⅰserver相同，del_flag=True，要删除，
+                 Ⅱserver不相同，del_flag=False，删除不了
