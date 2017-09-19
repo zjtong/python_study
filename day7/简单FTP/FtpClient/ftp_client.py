@@ -17,10 +17,10 @@ class FTPClient(object):
 
     def make_connection(self):
         print("创建连接".center(50, "-"))
-        # server = input("server:").strip()
-        # port = int(input("port:").strip())
-        server = "localhost"
-        port = 9999
+        server = input("server:").strip()
+        port = int(input("port:").strip())
+        #server = "localhost"
+        #port = 9999
         # print(type(server),type(port))
         self.sock = socket.socket()
         self.sock.connect((server,port))
@@ -29,10 +29,10 @@ class FTPClient(object):
 
     def authenticate(self):
         print("用户认证".center(50, "-"))
-        # username = input("username:").strip()
-        # password = input("password:").strip()
-        username = "admin"
-        password = "admin"
+        username = input("username:").strip()
+        password = input("password:").strip()
+        #username = "admin"
+        #password = "admin"
         return self.get_auth_result(username,password)
 
     def get_auth_result(self,username,password):
