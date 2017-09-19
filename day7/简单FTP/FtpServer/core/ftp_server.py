@@ -84,28 +84,15 @@ class FTPHandler(socketserver.BaseRequestHandler):
         file_obj = open("%s\\%s"%(self.now_dir_path,filename), "wb")
         received_size = 0
         self.request.recv(1)  # 等待客户端确认
-        if data.get('md5'):
-            md5_obj = hashlib.md5()
-            while received_size < file_size :
-                data = self.request.recv(4096)
-                file_obj.write(data)
-                md5_obj.update(data)
-                received_size += len(data)
-                #print(data['size'], received_size)
-            else:
-                print("--- [%s] 文件接收成功！---"%filename)
-                file_obj.close()
-                md5_val = md5_obj.hexdigest()
-                self.send_response(258, {'md5': md5_val})
+        
+        while received_size < file_size :
+            data = self.request.recv(4096)
+            file_obj.write(data)
+            received_size += len(data)
+            #print(data['size'], received_size)
         else:
-            while received_size < file_size :
-                data = self.request.recv(4096)
-                file_obj.write(data)
-                received_size += len(data)
-                #print(data['size'], received_size)
-            else:
-                print("--- [%s] 文件接收成功！---"%filename)
-                file_obj.close()
+            print("--- [%s] 文件接收成功！---"%filename)
+            file_obj.close()
 
     def _get(self,*args,**kwargs):
         if self.__auth_flag :
