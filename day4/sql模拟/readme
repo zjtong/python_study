@@ -1,0 +1,32 @@
+作业要求：模拟SQL，实现增删改查操作
+1.可进行模糊查询:
+　　select name,age from staff_table where age > 22
+　　select  * from staff_table where dept = "IT"
+    select  * from staff_table where enroll_date like "2013"
+    select  * from staff_table where name like "Alex"
+    查到的信息，打印后，最后面还要显示查到的条数
+2.可创建新员工纪录，以phone做唯一键，staff_id需自增
+    insert into staff_table values zjt,35,13910015353,teacher,2015-06-27
+3.可删除指定员工信息纪录，输入员工id，即可删除
+    delete from staff_table where id=6
+4.可修改员工信息，语法如下:
+    update staff_table set dept="Market",age=12 where dept = "IT"
+    update staff_table set age=1 where id=1
+
+使用方法：
+    运行程序，输入sql语句进行相应的操作，例如：
+    1.select  * from staff_table where id>1 and id<5 limit 2
+    2.insert into staff_table values zjt,35,13910015353,teacher,2015-06-27
+    3.delete from staff_table where id=6
+    4.update staff_table set dept="Market",age=12 where dept = "IT"
+
+使用注意事项：
+1.名字区分大小写，不区分空格，例如：
+    select  * from staff_table where name like "Alex"  >>>  可以取到表中的数据
+    select  * from staff_table where name like "alex"  >>>  不可以取到表中的数据
+2.update语句，set之后的语句应该是这种格式的：dept="Market",age=12，不包含空格的
+ 正确格式：dept="Market",age=12
+ 错误格式：dept = "Market", age = 12
+3.引号的使用：不区分双引号与单引号
+
+
