@@ -38,7 +38,7 @@ while count<3:
 			continue
 
 
-	else :								#用户名没有被锁定，不是不存在
+	else :		#用户名没有被锁定，不是不存在
 		if password == normal_users[username]:
 			print("欢迎用户[%s]登录！" % username)
 			break
