@@ -1,0 +1,131 @@
+2017-09-21 13:19:32,414 admin-用户认证-start
+2017-09-21 13:19:32,421 admin-通过认证-finish
+2017-09-21 13:19:44,796 admin-['ls']-dir:admin-start
+2017-09-21 13:19:44,796 admin-['ls']-发送文件列表成功...-finish
+2017-09-21 14:12:28,814 admin-用户认证-start
+2017-09-21 14:12:28,820 admin-通过认证-finish
+2017-09-21 14:12:36,045 admin-['ls']-dir:admin-start
+2017-09-21 14:12:36,049 admin-['ls']-发送文件列表成功...-finish
+2017-09-21 14:12:41,026 admin-['cd', 'test']-dir:admin-start
+2017-09-21 14:12:41,029 admin-['cd', 'test']-获取目录成功...-finish
+2017-09-21 14:18:28,088--admin-用户认证-start
+2017-09-21 14:18:28,092--admin-通过认证-finish
+2017-09-21 14:18:34,065--admin-['cd', 'test']-dir:admin-start
+
+2017-09-21 14:27:48,478--admin-用户认证-start
+2017-09-21 14:27:48,482--admin-通过认证-finish
+2017-09-21 14:29:13,475--admin-['get', 'python科学计算.pdf']-dir:admin-start
+2017-09-21 15:01:48,677--admin-用户认证-start
+2017-09-21 15:01:48,680--admin-通过认证-finish
+2017-09-21 15:05:23,324--admin-['get', 'python科学计算.pdf']-admin-start
+2017-09-21 15:05:23,324--admin-['get', 'python科学计算.pdf']-admin-start
+2017-09-21 15:58:41,788--admin-['get', 'python科学计算.pdf']-admin-start
+2017-09-21 16:04:20,295--admin-['get', 'python科学计算.pdf']-admin-start
+2017-09-21 16:05:43,604--admin-['get', 'python科学计算.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 16:41:06,154--admin-['put', 'f:\\0002.pdf']-admin-start
+2017-09-21 16:41:07,929--admin-['put', 'f:\\0002.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 16:41:36,527--admin-['put', 'f:\\0002.pdf']-admin-start
+2017-09-21 16:41:38,290--admin-['put', 'f:\\0002.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 16:42:32,526--admin-['put', 'f:\\python科学计算.pdf']-admin-start
+2017-09-21 19:02:04,925--admin-['put', 'f:\\python科学计算.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 19:02:47,990--admin-['put', 'f:\\\\python科学计算.pdf']-admin-start
+2017-09-21 19:04:50,431--admin-['put', 'f:\\\\python科学计算.pdf']-admin-start
+2017-09-21 19:06:09,840--admin-['put', 'f:\\\\python科学计算.pdf']-admin-start
+2017-09-21 19:08:13,043--admin-['put', 'f:\\\\python科学计算.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 19:09:02,108--admin-['ls']-admin-start
+2017-09-21 19:09:02,108--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 19:09:14,030--admin-['cd', 'test']-admin-start
+2017-09-21 19:09:14,030--admin-['cd', 'test']-获取目录成功...-finish
+2017-09-21 19:09:19,999--admin-['put', 'f:\\\\python科学计算.pdf']-admin\test-start
+2017-09-21 19:13:50,013--admin-['put', 'f:\\\\python科学计算.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 19:13:58,748--admin-['ls']-admin-start
+2017-09-21 19:13:58,748--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 19:14:05,842--admin-['cd', 'test']-admin-start
+2017-09-21 19:14:05,842--admin-['cd', 'test']-获取目录成功...-finish
+2017-09-21 19:14:08,280--admin-['ls']-admin\test-start
+2017-09-21 19:14:08,280--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 19:14:19,562--admin-['cd', '..']-admin\test-start
+2017-09-21 19:14:19,562--admin-['cd', '..']-获取目录成功...-finish
+2017-09-21 19:14:22,124--admin-['ls']-admin-start
+2017-09-21 19:14:22,140--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 19:14:28,312--admin-['cd', 'test1']-admin-start
+2017-09-21 19:14:28,312--admin-['cd', 'test1']-获取目录成功...-finish
+2017-09-21 19:14:31,968--admin-['ls']-admin\test1-start
+2017-09-21 19:14:31,968--admin-['ls']-目录为空！-finish
+2017-09-21 19:14:53,719--admin-['put', 'f:\\python科学计算.pdf']-admin\test1-start
+2017-09-21 19:15:13,970--admin-['put', 'f:\\python科学计算.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 19:16:19,348--admin-['put', 'f:\\001.pdf']-admin-start
+2017-09-21 19:16:32,240--admin-['put', 'f:\\001.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 19:16:41,957--admin-['put', 'f:\\001.pdf']-admin-start
+2017-09-21 19:24:39,946--admin-['put', 'f:\\001.pdf']-文件已存在-finish
+2017-09-21 19:25:04,650--admin-['put', 'f:\\002.pdf']-admin-start
+2017-09-21 19:25:12,822--admin-['put', 'f:\\002.pdf']-磁盘配额不足，上传的文件太大-finish
+2017-09-21 19:26:39,141--admin-['put', 'f:\\001.pdf']-admin-start
+2017-09-21 19:27:04,658--admin-['put', 'f:\\001.pdf']-admin-start
+2017-09-21 20:22:02,139--admin-['put', 'f:\\001.pdf']-admin-start
+2017-09-21 20:22:02,139--admin-['put', 'f:\\001.pdf']-文件路径无效！文件不存在！-finish
+2017-09-21 20:32:09,640--admin-['ls']-admin-start
+2017-09-21 20:32:09,640--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 20:32:32,360--admin-['put', 'f:\\oo2.pdf']-admin-start
+2017-09-21 20:32:32,360--admin-['put', 'f:\\oo2.pdf']-文件路径无效！文件不存在！-finish
+2017-09-21 20:32:54,064--admin-['put', 'f:\\002.pdf']-admin-start
+2017-09-21 20:33:09,908--admin-['put', 'f:\\002.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 20:33:14,268--admin-['ls']-admin-start
+2017-09-21 20:33:14,284--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 20:33:28,737--admin-['get', 'oo2.pdf']-admin-start
+2017-09-21 20:33:28,737--admin-['get', 'oo2.pdf']-File doesn't exist on server-finish
+2017-09-21 20:33:42,129--admin-['get', '002.pdf']-admin-start
+2017-09-21 20:33:52,926--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:26:28,447--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:26:41,244--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:28:16,983--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:28:27,468--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:41:08,402--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:41:19,215--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:49:03,544--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:49:13,982--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:50:15,094--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:50:15,094--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:50:25,407--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:50:25,407--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:56:31,075--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:56:41,310--admin-['get', '002.pdf']-文件获取成功，一致性校验成功!-finish
+2017-09-21 21:56:46,717--admin-['get', '002.pdf']-admin-start
+2017-09-21 21:56:46,717--admin-['get', '002.pdf']-文件已存在！-finish
+2017-09-21 21:59:05,107--admin-['ls']-admin-start
+2017-09-21 22:01:09,371--admin-['get', '002.pdf']-admin-start
+2017-09-21 22:01:09,371--admin-['get', '002.pdf']-文件已存在！-finish
+2017-09-21 22:05:48,479--admin-['get', '002.pdf']-admin-start
+2017-09-21 22:05:48,479--admin-['get', '002.pdf']-文件已存在！-finish
+2017-09-21 22:07:52,320--admin-['get', '002.pdf']-admin-start
+2017-09-21 22:07:52,320--admin-['get', '002.pdf']-文件已存在！-finish
+2017-09-21 22:08:39,697--admin-['get', '002.pdf']-admin-start
+2017-09-21 22:08:39,697--admin-['get', '002.pdf']-文件已存在！-finish
+2017-09-21 22:09:30,065--admin-['ls']-admin-start
+2017-09-21 22:09:30,065--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 22:09:37,175--admin-['cd', 'test']-admin-start
+2017-09-21 22:09:37,175--admin-['cd', 'test']-获取目录成功...-finish
+2017-09-21 22:09:39,660--admin-['ls']-admin\test-start
+2017-09-21 22:09:39,660--admin-['ls']-目录为空！-finish
+2017-09-21 22:09:47,051--admin-['cd', '..']-admin\test-start
+2017-09-21 22:09:47,051--admin-['cd', '..']-获取目录成功...-finish
+2017-09-21 22:09:49,519--admin-['ls']-admin-start
+2017-09-21 22:09:49,519--admin-['ls']-发送文件列表成功...-finish
+2017-09-21 22:09:53,926--admin-['cd', 'test1']-admin-start
+2017-09-21 22:09:53,942--admin-['cd', 'test1']-获取目录成功...-finish
+2017-09-21 22:09:55,410--admin-['ls']-admin\test1-start
+2017-09-21 22:09:55,410--admin-['ls']-目录为空！-finish
+2017-09-21 22:09:59,754--admin-['cd', '\\']-admin\test1-start
+2017-09-21 22:09:59,754--admin-['cd', '\\']-获取目录成功...-finish
+2017-09-21 22:10:27,677--admin-['put', '003.pdf']-admin-start
+2017-09-21 22:10:27,677--admin-['put', '003.pdf']-文件路径无效！文件不存在！-finish
+2017-09-21 22:10:38,647--admin-['put', 'f;\\oo3.pdf']-admin-start
+2017-09-21 22:10:38,647--admin-['put', 'f;\\oo3.pdf']-文件路径无效！文件不存在！-finish
+2017-09-21 22:10:50,116--admin-['put', '003.pdf']-admin-start
+2017-09-21 22:10:50,116--admin-['put', '003.pdf']-文件路径无效！文件不存在！-finish
+2017-09-21 22:11:00,054--admin-['put', 'f:\\003.pdf']-admin-start
+2017-09-21 22:11:23,461--admin-['put', 'f:\\003.pdf']-文件发送成功！一致性校验成功!-finish
+2017-09-21 22:11:45,728--admin-['put', 'f:\\\\003.pdf']-admin-start
+2017-09-21 22:11:45,728--admin-['put', 'f:\\\\003.pdf']-文件已存在-finish
+2017-09-21 22:27:26,063--admin-['ls']-admin-start
+2017-09-21 22:27:26,063--admin-['ls']-发送文件列表成功...-finish

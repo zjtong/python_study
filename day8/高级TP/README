@@ -1,0 +1,63 @@
+高级FTP实现的功能：
+    （1）用户加密认证：使用MD5加密传输密码
+    （2）允许同时多用户登录：ftp_server使用socksever
+    （3）每个用户有自己的家目录 ，且只能访问自己的家目录
+    （4）对用户进行磁盘配额，每个用户的可用空间不同
+    （5）允许用户在ftp server上随意切换目录
+    （6）允许用户查看当前目录下文件
+    （7）允许上传和下载文件，保证文件一致性：MD5验证文件一致性
+    （8）文件传输过程中显示进度条：使用生成器
+    （9）支持文件的断点续传：通过日志文件判断：每个操作开始与结束各自记录一个日志记录，
+                没有记录结束的日志表明有任务没完成
+
+
+程序介绍:
+
+    功能（指令不区分大小写）：
+            1、ls : 显示服务器的当前目录下文件列表
+            2、cd : 切换服务器的目录
+            3、put : 上传文件到服务器（单次上传文件的大小默认小于10MB）
+            4、get : 下载服务器上的文件到本地
+
+    测试账号：  用户名      密码        配额空间
+                admin       admin       1000GB
+                test1       test1       100MB
+                test2       test2       500GB
+                test3       test3       50GB
+                test4       test4       GB
+
+    使用时要分别运行客户端与服务器的程序，即：FtpClient\ftp_client.py , FtpServer\bin\ftp_server.py
+
+
+
+程序结构:
+#FTP主程目录
+
+ FTP
+├── FtpClient
+│   ├── download        #文件下载存放的目录
+│   ├── log             #日志存放的目录
+│     │   ├── admin
+│     │   ├── test1
+│     │   ├── test2
+│     │   ├── test3
+│     │   └── test4
+│   ├── __init__.py 
+│   ├── ftp_client.py   #ftp客户端程序
+│   ├── settings.py     #ftp客户端配置信息与规范的状态码
+└── FtpServer
+        ├── bin #服务器端执行文件 目录
+        │   ├── __init__.py
+        │   ├── ftp_server.py  #ATM 执行程序  
+        ├── conf #配置文件
+        │   ├── __init__.py
+        │   ├── accounts.cfg    #配置文件，也存放账户信息
+        │   └── settings.py
+        ├── core #主要程序逻辑都 在这个目录 里
+        │   └── ftp_server.py
+        └── home #主页目录
+               ├── __init__.py
+               └── admin
+                        ├── test    #测试目录
+                        │      └── test    #测试文件
+                        └── test1    #测试目录
