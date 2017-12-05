@@ -1,0 +1,39 @@
+2017-12-02 09:42:22 PM [ERROR] 主机[192.168.0.201]无响应
+2017-12-02 09:42:22 PM [ERROR] 主机[192.168.0.202]无响应
+2017-12-02 09:44:30 PM [INFO] 主机[192.168.153.128]执行命令[ifconfig]成功
+2017-12-02 09:44:30 PM [INFO] 主机[192.168.153.128]执行命令[ifconfig]成功
+2017-12-02 11:34:20 PM [INFO] 主机[192.168.153.128]执行命令[ifconfig]成功
+2017-12-02 11:34:28 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:34:29 PM [INFO] Authentication (password) successful!
+2017-12-02 11:34:29 PM [INFO] 主机[192.168.153.128]执行命令[date]成功
+2017-12-02 11:35:14 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:35:14 PM [INFO] Authentication (password) successful!
+2017-12-02 11:35:14 PM [INFO] 主机[192.168.153.128]执行命令[cd/home]成功
+2017-12-02 11:36:02 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:36:02 PM [INFO] Authentication (password) successful!
+2017-12-02 11:36:03 PM [INFO] 主机[192.168.153.128]执行命令[cd/bin]成功
+2017-12-02 11:36:16 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:36:17 PM [INFO] Authentication (password) successful!
+2017-12-02 11:36:17 PM [INFO] 主机[192.168.153.128]执行命令[cd]成功
+2017-12-02 11:36:31 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:36:31 PM [INFO] Authentication (password) successful!
+2017-12-02 11:36:32 PM [INFO] 主机[192.168.153.128]执行命令[pwd]成功
+2017-12-02 11:36:36 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:36:36 PM [INFO] Authentication (password) successful!
+2017-12-02 11:36:36 PM [INFO] 主机[192.168.153.128]执行命令[ls]成功
+2017-12-02 11:37:26 PM [INFO] [192.168.153.128]上传文件[1111111.pdf]成功
+2017-12-02 11:39:20 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:39:20 PM [INFO] Authentication (password) successful!
+2017-12-02 11:39:21 PM [INFO] [chan 0] Opened sftp connection (server version 3)
+2017-12-02 11:39:21 PM [INFO] [192.168.153.128]上传文件[1111111.pdf]成功
+2017-12-02 11:39:47 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:39:48 PM [INFO] Authentication (password) successful!
+2017-12-02 11:39:48 PM [INFO] [chan 0] Opened sftp connection (server version 3)
+2017-12-02 11:39:48 PM [INFO] 从[192.168.153.128]下载[1111111.pdf]成功
+2017-12-02 11:43:19 PM [INFO] 从[192.168.153.128]下载[/root/1111111.pdf]成功
+2017-12-02 11:44:17 PM [INFO] Connected (version 2.0, client OpenSSH_5.3)
+2017-12-02 11:44:17 PM [INFO] Authentication (password) successful!
+2017-12-02 11:44:17 PM [INFO] [chan 0] Opened sftp connection (server version 3)
+2017-12-02 11:44:17 PM [INFO] 从[192.168.153.128]下载[/root/1111111.pdf]成功
+2017-12-02 11:44:50 PM [INFO] 从[192.168.153.128]下载[/root/1111111.pdf]成功
+2017-12-02 11:48:23 PM [ERROR] Socket exception: 远程主机强迫关闭了一个现有的连接。 (10054)
