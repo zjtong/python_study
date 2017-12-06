@@ -17,13 +17,7 @@ class SSH_Manage(object):
     def __init__(self):
         self.DB_PATH = settings.DB_PATH
         self.LOG_PATH = settings.LOG_PATH
-        #self.Create_SSHClient('192.168.0.201',22,'limingchang','123456','ls')
-        # cmd = {
-        #     'act':'download',
-        #     'local_file':'up.dat',
-        #     'host_file': '/home/limingchang/test.dat'
-        # }
-        # self.Create_SSHFTP('192.168.0.201',22,'limingchang','123456',cmd)
+
 
 
     def Create_SSHClient(self,ip,port,user,pwd,command):
