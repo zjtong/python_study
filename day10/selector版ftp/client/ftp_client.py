@@ -111,6 +111,7 @@ class Ftp_Client(object):
         '''
         #接收确认信息
         send_size = 0
+        flag = False
         chk = self.Client.recv(1024)
         if chk.decode() == 'ok':
             print('发送数据')
@@ -120,7 +121,11 @@ class Ftp_Client(object):
                 data = file_obj.read(4096)
                 self.Client.send(data)
                 send_size += len(data)
-
+                if int(send_size / file_size * 100) in [25,50,75,100] and not flag:
+                    print("已发送%d%%" % (int(send_size / file_size * 100)))
+                    flag = True
+                if int(send_size / file_size * 100) not in [25, 50, 75, 100]:
+                    flag = False
 
             print("\t文件大小：%s, 发送大小：%s" % (file_size, send_size))
             file_obj.close()
@@ -184,6 +189,7 @@ class Ftp_Client(object):
         :return:
         '''
         recved_size = 0
+        flag = False
         self.Client.send(b'ok')#发送激活信号 down:3
         while recved_size < file_size :
             if file_size - recved_size > 4096:
@@ -194,6 +200,11 @@ class Ftp_Client(object):
             file_data = self.Client.recv(size)
             recved_size += len(file_data)
             file_obj.write(file_data)
+            if int(recved_size / file_size * 100) in [25, 50, 75, 100] and not flag:
+                print("已接收%d%%" % (int(recved_size / file_size * 100)))
+                flag = True
+            if int(recved_size / file_size * 100) not in [25, 50, 75, 100]:
+                flag = False
             # file_obj.flush()
 
         print("文件大小：%s，接收大小：%s" % (file_size, recved_size))

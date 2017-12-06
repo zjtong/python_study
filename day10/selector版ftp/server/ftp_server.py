@@ -167,12 +167,13 @@ class Ftp_Server(object):
 
         while file_size > send_size :
             try:
-                # print(file_size,send_size)
+                #print(file_size,send_size)
+                #print("已发送%d%%，%d字节" % (int(send_size / file_size * 100), send_size))
                 data = file_obj.read(4096)
                 send_size += len(data)
                 conn.send(data)
             except Exception as BlockingIOError:
-                time.sleep(0.1)
+                time.sleep(0.2)
                 conn.send(data)
                 count +=1
                 continue
@@ -241,7 +242,7 @@ class Ftp_Server(object):
                 recved_size += len(file_data)
                 file_obj.write(file_data)
             except Exception as BlockingIOError:
-                time.sleep(0.1)
+                time.sleep(0.2)
                 file_data = conn.recv(size)
                 recved_size += len(file_data)
                 file_obj.write(file_data)
