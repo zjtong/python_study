@@ -37,11 +37,10 @@ class Ftp_Server(object):
         while True:
             events = self.Sel.select()
             for key , mask in events:
-                #print(key,mask)
                 #print('活动IO：',key.fileobj)
                 #print('回调：',key.db)
                 callback = key.data
-                callback(key.fileobj)
+                callback(key.fileobj,mask)
 
     def Get_Conf(self):
         '''
@@ -53,23 +52,21 @@ class Ftp_Server(object):
         self.IP = conf['SERVER']['ip']
         self.Port = int(conf['SERVER']['port'])
 
-    def Accept(self,sock):
+    def Accept(self,sock,mask):
         conn,addr = sock.accept()
         self.addr = addr
         print('客户端接入:',addr)
         conn.setblocking(False)#设置不阻塞
         self.Sel.register(conn,selectors.EVENT_READ,self.Read)
 
-    def Read(self,conn):
+    def Read(self,conn,mask):
         '''
         读取客户端过来的命令
         :return:
         '''
         try:
-
             cmd = conn.recv(1024)
             if cmd:
-                #print(pickle.loads(cmd))
                 cmd_dict = pickle.loads(cmd)
                 if cmd_dict['act'] == 'upload':
                     if self.check_filename(cmd_dict['cloudfile']):
@@ -90,7 +87,6 @@ class Ftp_Server(object):
                     self.Sel.unregister(conn)
                     self.Sel.register(conn,selectors.EVENT_READ,self.DownLoad_Send_FileSize)
                 elif cmd_dict['act'] == 'get':
-
                     conn.send(b'ready')  # 发送确认信息防止粘包 down:1
                     self.Action[conn] = cmd_dict
                     # 重新注册事件，以更换回调函数
@@ -105,7 +101,7 @@ class Ftp_Server(object):
             conn.close()
             print(e)
 
-    def Get_file_list(self,conn):
+    def Get_file_list(self,conn,mask):
 
         file_list = os.listdir(base_path)
         chk = conn.recv(1024)
@@ -119,7 +115,8 @@ class Ftp_Server(object):
 
 
 
-    def DownLoad_Send_FileSize(self,conn):
+
+    def DownLoad_Send_FileSize(self,conn,mask):
         '''
         发送下载文件大小
         :param conn:
@@ -137,8 +134,8 @@ class Ftp_Server(object):
             f = open(filename,'rb')
             self.File_Obj[conn] = {
                 'file_obj': f,
-                'filesize': data['size'],
-                'sendsize' : 0
+                'file_size': data['size'],
+                'send_size' : 0
 
             }
             #重新注册监听事件
@@ -150,42 +147,36 @@ class Ftp_Server(object):
             #回到read回调监听
             self.Sel.unregister(conn)
             self.Sel.register(conn, selectors.EVENT_READ, self.Read)
-            del self.Action[conn]
-    def DownLoad_Send_FileDta(self,conn):
+            # del self.Action[conn]
+    def DownLoad_Send_FileDta(self,conn,mask):
         '''
         发送下载文件数据
         :param conn:
         :param mask:
         :return:
         '''
-        chk = conn.recv(2)#接收接货信号 down:3
-        #print(self.File_Obj[conn])
+        chk = conn.recv(1024)#接收接货信号 down:3
+        # print(chk.decode())
         file_obj = self.File_Obj[conn]['file_obj']
-        file_size = self.File_Obj[conn]['filesize']
-        send_size = 0
-        count = 1
-
-        while file_size > send_size :
-            try:
-                #print(file_size,send_size)
-                #print("已发送%d%%，%d字节" % (int(send_size / file_size * 100), send_size))
-                data = file_obj.read(4096)
-                send_size += len(data)
-                conn.send(data)
-            except Exception as BlockingIOError:
-                time.sleep(0.2)
-                conn.send(data)
-                count +=1
-                continue
-        print("\tBlockingIOError异常:", count)
-        print("\t文件大小：%s, 发送大小：%s"%(file_size,send_size) )
-        file_obj.close()
-        print("\t发送文件完成")
-        #发送完毕，重新进入read监听
-        self.Sel.unregister(conn)
-        self.Sel.register(conn, selectors.EVENT_READ, self.Read)
-        del self.Action[conn]
-        del self.File_Obj[conn]
+        file_size = self.File_Obj[conn]['file_size']
+        send_size = self.File_Obj[conn]['send_size']
+        if chk == b"received complete":
+            print("\t文件大小：%s，发送大小：%s" % (file_size, send_size))
+            self.Sel.unregister(conn)
+            # 重新注册事件监听
+            self.Sel.register(conn, selectors.EVENT_READ, self.Read)
+            del self.Action[conn]  # 删除临时数据
+            self.File_Obj[conn]['file_obj'].close()  # 关闭文件
+            print('\t发送完毕，关闭文件')
+            del self.File_Obj[conn]  # 删除文件句柄
+        else:
+            # try:
+            data = file_obj.read(4096)
+            self.File_Obj[conn]['send_size'] += len(data)
+            conn.send(data)
+            # except Exception as BlockingIOError:
+            #     time.sleep(0.2)
+            #     conn.send(data)
 
     def check_filename(self,filename):
         '''
@@ -200,7 +191,7 @@ class Ftp_Server(object):
                 return True
             else:
                 return False
-    def UpLoad_Get_FileSize(self,conn):
+    def UpLoad_Get_FileSize(self,conn,mask):
         '''
         接收客户端发送过来的文件大小
         :param conn:
@@ -216,50 +207,46 @@ class Ftp_Server(object):
         self.File_Obj[conn] = {
             'file_obj':f,
             'filesize':file_size,#文件总大小
+            'recved_size': 0  # 已接收大小
         }
         conn.send(b'ok')#发送验证数据给客户端，防止粘包
         #重新注册事件，将下一个活动IO交给接收文件数据函数处理
         self.Sel.unregister(conn)
         self.Sel.register(conn,selectors.EVENT_READ,self.UpLoad_Get_FileData)
 
-    def UpLoad_Get_FileData(self,conn):
+    def UpLoad_Get_FileData(self,conn,mask):
         '''
         接收文件数据
         :return:
         '''
-        file_obj = self.File_Obj[conn]['file_obj']
+        # file_obj = self.File_Obj[conn]['file_obj']
         file_size = self.File_Obj[conn]['filesize']
-        recved_size = 0
-        count = 0
-        while recved_size < file_size :
-            # print(file_size, recved_size)
-            try:
-                if file_size - recved_size > 4096:
-                    size =4096
-                else:
-                    size = file_size - recved_size
-                file_data = conn.recv(size)
-                recved_size += len(file_data)
-                file_obj.write(file_data)
-            except Exception as BlockingIOError:
-                time.sleep(0.2)
-                file_data = conn.recv(size)
-                recved_size += len(file_data)
-                file_obj.write(file_data)
-                count+=1
-                # print(count)
-                continue
-        print("\tBlockingIOError异常:",count)
-        print("\t文件大小：%s，接收大小：%s" % (file_size, recved_size))
-        print('\t文件下载完成！')
-        #conn.recv(1024)
-        self.File_Obj[conn]['file_obj'].close()  # 关闭文件
-        # 解绑事件
-        self.Sel.unregister(conn)
-        # #重新注册事件监听
-        self.Sel.register(conn, selectors.EVENT_READ, self.Read)
-        del self.Action[conn]  # 删除临时数据
-        del self.File_Obj[conn]  # 删除文件句柄
+        recved_size = self.File_Obj[conn]['recved_size']
+
+        if recved_size - file_size == 0:#文件接收完毕
+            print("\t文件大小：%s，接收大小：%s" % (file_size, recved_size))
+            self.Sel.unregister(conn)
+            # 重新注册事件监听
+            self.Sel.register(conn, selectors.EVENT_READ, self.Read)
+            del self.Action[conn]  # 删除临时数据
+            self.File_Obj[conn]['file_obj'].close()  # 关闭文件
+            print('\t完成接收，关闭文件')
+            del self.File_Obj[conn]  # 删除文件句柄
+        else:
+            # try:
+            if file_size - recved_size > 4096:
+                size =4096
+            else:
+                size = file_size - recved_size
+            file_data = conn.recv(size)
+            self.File_Obj[conn]['recved_size'] += len(file_data)  # 记录接收大小
+            self.File_Obj[conn]['file_obj'].write(file_data)  # 写入文件
+            # except Exception as BlockingIOError:
+            #     time.sleep(0.2)
+            #     file_data = conn.recv(size)
+            #     self.File_Obj[conn]['recved_size'] += len(file_data)  # 记录接收大小
+            #     self.File_Obj[conn]['file_obj'].write(file_data)  # 写入文件
+
 
 if __name__ == "__main__":
     print(" 服务器准备就绪 ".center(73, "-"))

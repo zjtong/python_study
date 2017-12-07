@@ -3,6 +3,14 @@
 import sys, os,time
 path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, path)
+'''
+server中，发送数据或接收数据都不能用while循环来一直发送或接收数据，
+用while循环会导致并发上传、下载出问题，每次都要等第一个任务完成后第二个任务才会开始，
+正常来说应该是同时开始任务并且文件小的那件任务先完成
+
+用while循环收发后会一直卡在用while循环知道循环结束
+'''
+
 
 import socket
 import configparser,pickle
@@ -114,7 +122,7 @@ class Ftp_Client(object):
         flag = False
         chk = self.Client.recv(1024)
         if chk.decode() == 'ok':
-            print('发送数据')
+            print('发送数据...')
 
             while file_size > send_size:
                 # print(send_size,file_size)
@@ -190,8 +198,9 @@ class Ftp_Client(object):
         '''
         recved_size = 0
         flag = False
-        self.Client.send(b'ok')#发送激活信号 down:3
+        print("接收数据...")
         while recved_size < file_size :
+            self.Client.send(b'keep sending')  # 发送激活信号 down:3，一直发送激活信号以达到server端一直发送数据过来，直达接收文件完成
             if file_size - recved_size > 4096:
                 size = 4096
             else:
@@ -209,6 +218,7 @@ class Ftp_Client(object):
 
         print("文件大小：%s，接收大小：%s" % (file_size, recved_size))
         print('文件下载完成！')
+        self.Client.send(b'received complete')#发送接收完成信号
         file_obj.close()
 
     def help(self,cmd="help"):
