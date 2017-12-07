@@ -1,0 +1,463 @@
+# -*- coding: utf-8 -*-
+
+import sys, os
+
+path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, path)
+# print(path)
+base_path = "%s\\file" % path
+
+
+import socket
+import selectors
+import configparser,pickle
+
+
+class Ftp_Server(object):
+    '''
+    selectors版FTP，IO多路复用
+    '''
+    def __init__(self):
+        self.Sel = selectors.DefaultSelector()
+        self.Action = {}#存储每个连接的命令，以conn作为标识
+        self.File_Obj = {}#存储每个连接的FTP文件信息，以conn作为标识
+        self.addr = ()
+
+        #获取配置文件
+        self.Get_Conf()
+        #创建socket
+        self.Handle()
+
+    def Handle(self):
+        sock = socket.socket()
+        sock.bind((self.IP,self.Port))
+        sock.listen()
+        sock.setblocking(False)#默认不阻塞
+        #注册selector事件
+        self.Sel.register(sock,selectors.EVENT_READ,self.Accept)
+        while True:
+            events = self.Sel.select()
+            for key , mask in events:
+                #print(key,mask)
+                #print('活动IO：',key.fileobj)
+                #print('回调：',key.data)
+                callback = key.data
+                callback(key.fileobj)
+
+    def Get_Conf(self):
+        '''
+        获取配置信息
+        :return:
+        '''
+        conf = configparser.ConfigParser()
+        conf.read('conf.ini')
+        self.IP = conf['SERVER']['ip']
+        self.Port = int(conf['SERVER']['port'])
+
+    def Accept(self,sock):
+        conn,addr = sock.accept()
+        self.addr = addr
+        print('客户端接入:',addr)
+        conn.setblocking(False)#设置不阻塞
+        self.Sel.register(conn,selectors.EVENT_READ,self.Read)
+
+    def Read(self,conn):
+        '''
+        读取客户端过来的命令
+        :return:
+        '''
+        try:
+            cmd = conn.recv(1024)
+            if cmd:
+                #print(pickle.loads(cmd))
+                cmd_dict = pickle.loads(cmd)
+                if cmd_dict['act'] == 'upload':
+                    if self.check_filename(cmd_dict['cloudfile']):
+                        conn.send(b'exist') #文件已存在
+                        self.Sel.unregister(conn)
+                        self.Sel.register(conn, selectors.EVENT_READ, self.Read)
+                    else:
+                        conn.send(b'ready')  # 发送确认信息防止粘包 up:1
+                        self.Action[conn] = cmd_dict#参数存储进字典
+                        #重新注册事件，以更换回调函数，进入接收文件大小
+                        self.Sel.unregister(conn)
+                        self.Sel.register(conn,selectors.EVENT_READ,self.UpLoad_Get_FileSize)
+                        print("\t",self.Action[conn])
+                elif cmd_dict['act'] == 'download':
+                    conn.send(b'ready')# 发送确认信息防止粘包 down:1
+                    self.Action[conn] = cmd_dict
+                    # 重新注册事件，以更换回调函数，进入发送文件大小
+                    self.Sel.unregister(conn)
+                    self.Sel.register(conn,selectors.EVENT_READ,self.DownLoad_Send_FileSize)
+                elif cmd_dict['act'] == 'get':
+                    conn.send(b'ready')  # 发送确认信息防止粘包 down:1
+                    self.Action[conn] = cmd_dict
+                    # 重新注册事件，以更换回调函数
+                    self.Sel.unregister(conn)
+                    self.Sel.register(conn, selectors.EVENT_READ, self.Get_file_list)
+
+            else:
+                self.Sel.unregister(conn)
+                conn.close()
+        except Exception as e:
+            self.Sel.unregister(conn)
+            conn.close()
+            print(e)
+
+    def Get_file_list(self,conn):
+        file_list = os.listdir(base_path)
+        chk = conn.recv(1024)
+        if chk.decode() == 'ok'and file_list:
+            conn.send(pickle.dumps(file_list ))
+        else:
+            conn.send(pickle.dumps([]))
+        self.Sel.unregister(conn)
+        self.Sel.register(conn, selectors.EVENT_READ, self.Read)
+        del self.Action[conn]
+
+
+    def DownLoad_Send_FileSize(self,conn):
+        '''
+        发送下载文件大小
+        :param conn:
+        :param mask:
+        :return:
+        '''
+        data = {'size':0}
+        print('\t文件下载：',self.Action[conn]['cloudfile'])
+        chk = conn.recv(1024)#down:2 接收一个激活信号
+        filename = "%s\\%s"%(base_path ,self.Action[conn]['cloudfile'])
+        if os.path.isfile(filename):#判断文件是否存在
+            data['size'] = os.path.getsize(filename)
+            print("\t文件大小：",data['size'])
+            conn.send(pickle.dumps(data))#发送文件大小
+            f = open(filename,'rb')
+            self.File_Obj[conn] = {
+                'file_obj': f
+            }
+            #重新注册监听事件
+            self.Sel.unregister(conn)
+            self.Sel.register(conn,selectors.EVENT_READ,self.DownLoad_Send_FileDta)
+        else:
+            conn.send(pickle.dumps(data))  # 发送0大小，标识文件不存在
+            print("\t云端文件不存在！")
+            #回到read回调监听
+            self.Sel.unregister(conn)
+            self.Sel.register(conn, selectors.EVENT_READ, self.Read)
+            del self.Action[conn]
+    def DownLoad_Send_FileDta(self,conn):
+        '''
+        发送下载文件数据
+        :param conn:
+        :param mask:
+        :return:
+        '''
+        chk = conn.recv(1024)#接收接货信号 down:3
+        file_obj = self.File_Obj[conn]['file_obj']
+        for line in file_obj:
+            conn.send(line)
+        file_obj.close()
+        print("\t发送文件完成")
+        #发送完毕，重新进入read监听
+        self.Sel.unregister(conn)
+        self.Sel.register(conn, selectors.EVENT_READ, self.Read)
+        del self.Action[conn]
+        del self.File_Obj[conn]
+
+    def check_filename(self,filename):
+        '''
+        检查文件是否存在（文件名）
+        :param filename:
+        :return:
+        '''
+        #print(filename)
+        for root, dirs, files in os.walk(base_path):
+            #print(files)
+            if filename in files:
+                return True
+            else:
+                return False
+    def UpLoad_Get_FileSize(self,conn):
+        '''
+        接收客户端发送过来的文件大小
+        :param conn:
+        :param mask:
+        :return:
+        '''
+        print('\t上传文件的路径:',self.Action[conn]['localfile'])
+        file_size = pickle.loads(conn.recv(1024))
+        print('\t上传文件的大小：',file_size['size'])
+        file_path = "%s\\%s"%(base_path ,self.Action[conn]['cloudfile'])
+        f = open(file_path,'wb')
+        # 将文件信息记录入全局字典
+        self.File_Obj[conn] = {
+            'file_obj':f,
+            'filesize':file_size['size'],#文件总大小
+            'recved_size':0,#已接收大小
+        }
+        conn.send(b'ok')#发送验证数据给客户端，防止粘包
+        #重新注册事件，将下一个活动IO交给接收文件数据函数处理
+        self.Sel.unregister(conn)
+        self.Sel.register(conn,selectors.EVENT_READ,self.UpLoad_Get_FileData)
+    def UpLoad_Get_FileData(self,conn):
+        '''
+        接收文件数据
+        :return:
+        '''
+        filesize = self.File_Obj[conn]['filesize']
+        recved_size = self.File_Obj[conn]['recved_size']
+        if filesize - recved_size == 0:#文件接收完毕
+            #解绑事件
+            self.Sel.unregister(conn)
+            # #重新注册事件监听
+            self.Sel.register(conn,selectors.EVENT_READ,self.Read)
+            del self.Action[conn] #删除临时数据
+            self.File_Obj[conn]['file_obj'].close()#关闭文件
+            conn.recv(1024)
+            print('\t上传完成，关闭文件')
+            del self.File_Obj[conn]#删除文件句柄
+        else:
+
+            if filesize - recved_size < 1024:
+                size = filesize - recved_size
+            else:
+                size =1024
+            file_data = conn.recv(size)
+            self.File_Obj[conn]['recved_size'] += len(file_data)#记录接收大小
+            self.File_Obj[conn]['file_obj'].write(file_data)#写入文件
+
+if __name__ == "__main__":
+    print(" 服务器准备就绪 ".center(73, "-"))
+    server = Ftp_Server()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -*- coding: utf-8 -*-
+
+import sys, os,time
+path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, path)
+
+import socket
+import configparser,pickle
+
+class Ftp_Client(object):
+    '''
+    selector版FTP客户端
+    '''
+    def __init__(self):
+        #创建客户端socket
+        self.Client = socket.socket()
+        #获取配置文件
+        self.Get_Conf()
+        #创建连接
+        self.Conn()
+        #进入命令循环
+        self.Command()
+
+    def Get_Conf(self):
+        '''
+        获取配置信息
+        :return:
+        '''
+        conf = configparser.ConfigParser()
+        conf.read('conf.ini')
+        self.IP = conf['CLIENT']['ip']
+        self.Port = int(conf['CLIENT']['port'])
+
+    def Conn(self):
+        self.Client.connect((self.IP,self.Port))
+
+    def Command(self):
+        '命令分发'
+        self.help()
+        while True:
+            self.Get_cloudfile_list()
+            cmd = input('请输入命令(帮助输入help）：').strip().lower()
+            cmd_list = cmd.split()
+            if  hasattr(self, "%s" % cmd_list[0]):
+                func = getattr(self, "%s" % cmd_list[0])
+                func(cmd_list)
+            else:
+                print('\033[1;31;1m命令错误！\033[0m')
+                self.help()
+
+    def Get_cloudfile_list(self):
+        time.sleep(1)
+        data = {
+            'act': 'get'
+        }
+        self.Client.send(pickle.dumps(data))
+        # 接收确认信息
+        chk = self.Client.recv(1024)
+        if chk.decode() == 'ready':
+            self.Client.send(b"ok")
+            file_list = pickle.loads(self.Client.recv(1024))
+            print("云端文件列表".center(50,"-") )
+            if file_list :
+                for index, item in enumerate(file_list):
+                    print("\t",index,item)
+            else:
+                print("云端无文件，请先上传文件！\n")
+
+    def put(self,cmd_list):
+        data = {
+            'act':'upload',
+            'localfile':cmd_list[1],
+            'cloudfile':cmd_list[2]
+        }
+        if os.path.isfile(data["localfile"]):
+            if os.path.getsize(data["localfile"]) == 0:
+                print("本地文件为空文件，取消上传！")
+                return
+        else:
+            print("本地文件不存在，取消上传！")
+            return
+        self.Client.send(pickle.dumps(data))
+        #接收确认信息
+        chk = self.Client.recv(1024)#up:1
+        if chk.decode() == 'ready':
+            print('服务端已准备好，开始发送文件...')
+            self.Send_File_Size(data)
+        elif chk.decode() == 'exist':
+            print("云端已存在同名文件！")
+        else:
+            print('数据传输错误，程序中止')
+            exit()
+        # return
+    def Send_File_Size(self,dict):
+        '''
+        发送文件大小
+        :param dict: 命令字典
+        :return:
+        '''
+        data = {'size':0}
+        file_path = dict['localfile']
+        data['size'] = os.path.getsize(file_path)
+        print('获取大小：',data['size'])
+        f = open(file_path,'rb')
+        self.Client.send(pickle.dumps(data))  # up：2
+        self.Send_File_Data(f)#发送文件数据
+    def Send_File_Data(self,file_obj):
+        '''
+        发送文件数据
+        :param file_obj: 文件句柄
+        :return:
+        '''
+        #接收确认信息
+        chk = self.Client.recv(1024)
+        if chk.decode() == 'ok':
+            print('发送数据')
+            for line in file_obj:
+                self.Client.send(line)
+            file_obj.close()
+            print('文件传输完毕！')
+            #给服务端发送一个完成信号
+            self.Client.send(b'upload completed')
+        else:
+            print('数据传输错误，程序中止')
+            exit()
+
+
+    def check_filepath(self,data):
+        '''
+        检查文件是否存在（文件名）
+        :param filename:
+        :return:
+        '''
+        dir_list = data["localfile"].split("\\")
+        file_dir = "\\".join(dir_list[0:-1])
+        print(dir_list)
+        if os.path.isdir(file_dir):
+            if os.path.isfile(data["localfile"]):
+                print("\t本地存在同名文件，取消下载！")
+                return False
+            else:
+                return True
+        else:
+            print("\t文件存放路径错误，取消下载！")
+            return False
+    def get(self,cmd_list):
+        data = {
+            'act': 'download',
+            'localfile': cmd_list[2],
+            'cloudfile': cmd_list[1]
+        }
+        if self.check_filepath(data):
+            self.Client.send(pickle.dumps(data))
+            #接收确认信息
+            chk = self.Client.recv(1024)#down:1
+            if chk.decode() == 'ready':
+                self.Client.send(b'ok')#发送一个消息以激活服务端监听回调 down:2
+                self.Get_File_Size(data)
+            else:
+                print('数据传输错误，程序中止')
+                exit()
+    def Get_File_Size(self,dict):
+        '''
+        接收服务端文件大小
+        :param dict: 命令字典
+        :return:
+        '''
+        filesize = pickle.loads(self.Client.recv(1024))
+        if filesize['size'] == 0:
+            print('云端文件不存在！')
+        else:
+            f = open(dict['localfile'],'wb')
+            self.Save_File_Data(f,filesize['size'],dict)
+    def Save_File_Data(self,file_obj,file_size,dict):
+        '''
+        接收服务端发送的文件数据
+        :param file_obj: 文件句柄
+        :param file_size: 要接收的文件大小
+        :param dict: 文件信息字典
+        :return:
+        '''
+        recved_size = 0
+        self.Client.send(b'ok')#发送激活信号 down:3
+        while file_size - recved_size >0:
+            if file_size - recved_size <1024:
+                size = file_size - recved_size
+            else:
+                size = 1024
+            file_data = self.Client.recv(1024)
+            recved_size += len(file_data)
+            file_obj.write(file_data)
+        else:
+            print('文件下载完成！')
+            file_obj.close()
+
+    def help(self,cmd="help"):
+        '''
+        打印帮助信息
+        :return:
+        '''
+        print('指令格式'.center(50,'-'))
+        print('上传文件：put [本地完整路径文件名] [云端文件名]')
+        print('下载文件：get [云端文件名] [本地完整路径文件名]\n')
+
+if __name__ == "__main__":
+    client = Ftp_Client()
